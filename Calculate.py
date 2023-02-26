@@ -4,16 +4,19 @@ import csv
 import time
 from datetime import datetime, timedelta, date
 
-wh={} # { 'yyyy-mm-dd' : { 'Start':'yyyy-mm-dd hh:mm:ss', 'End':'yyyy-mm-dd hh:mm:ss'  }}
-dt={} # {  x : { 'Start':yyyy-mm-dd hh:mm:ss, 'End':yyyy-mm-dd hh:mm:ss, 'Monitor':'text', 'DurationWH':yyyy-mm-dd hh:mm:ss }}
+wh={} # what are working hours 
+dt={} # outage data and time deltas
 wh_filename = "WorkingHours5.csv"
 data_filename = "Outage Report_testdata_02.csv"
 new_filename = 'New'+data_filename
 
-def to_time( time_str ):
+
+def to_time( time_str ): # Common time formatter
     return datetime.strptime( time_str, "%Y-%m-%d %H:%M:%S" )
 
-def read_working(): # Read Working Hours lookup file into wh{}
+
+def read_working(): # Read working hours reference file
+    # wh{ 'yyyy-mm-dd' : { 'Start':'yyyy-mm-dd hh:mm:ss', 'End':'yyyy-mm-dd hh:mm:ss'  }}
     with open( wh_filename ) as wh_file_data:
         wh_file = csv.DictReader( wh_file_data )
         for row in wh_file:
@@ -22,7 +25,15 @@ def read_working(): # Read Working Hours lookup file into wh{}
             wh.update( { key : { 'Start':row['Start'], 'End':row['End'] }} )
             #print( wh[key] )
 
-def read_data(): # Read ourage report Data file into dt{}
+
+def read_data(): # Read outage report 
+    '''
+    { dt : { 'Start Time' : yyyy-mm-dd hh:mm:ss, 
+             'End Time'   : yyyy-mm-dd hh:mm:ss, 
+             'Monitor'    : 'text', 
+             'Total Hrs'  : yyyy-mm-dd hh:mm:ss, 
+             'Working Hrs': yyyy-mm-dd hh:mm:ss }}
+    '''
     with open( data_filename ) as data_file_data:
         data_file = csv.DictReader( data_file_data )
         x = 1
@@ -31,7 +42,8 @@ def read_data(): # Read ourage report Data file into dt{}
             #print( dt[x])
             x += 1
 
-def write_data(): # Write ourage report Data file into dt{}
+
+def write_data(): # Write calculated file
     with open( new_filename, 'w' ) as new_file_data:
         line = 'Monitor, Start Time, End Time, Total Secs, Working Secs'
         new_file_data.write( line+'\n' )
